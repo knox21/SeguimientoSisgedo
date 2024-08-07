@@ -1,0 +1,133 @@
+name: Blank snippet (5)
+description: Create a new snippet from a blank template.
+host: EXCEL
+api_set: {}
+script:
+  content: |
+    $("#run").on("click", () => tryCatch(run));
+    $("#run2").on("click", () => tryCatch(run2));
+
+    async function run() {
+      await Excel.run(async (context) => {
+        // Obtener el valor de la celda activa
+        let myWorkbook = context.workbook;
+        let activeCell = myWorkbook.getActiveCell();
+        activeCell.load(["address", "values"]);
+
+        await context.sync();
+
+        let cellAddress = activeCell.address;
+        let cellValue = activeCell.values[0][0];
+
+        //console.log("The active cell is " + cellAddress);
+        // console.log("The value of the active cell is " + cellValue);
+
+        // Realizar el fetch
+        var response = await fetch("https://sgd.regionarequipa.gob.pe/api/data/search/report_folder.php?exp=" + cellValue);
+        var responseText = await response.text();
+
+        // Agregar el enlace de Bootstrap al HTML obtenido
+        var bootstrapLink =
+          '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">';
+        var additionalStyles = "<style>.small-font { font-size: 0.5rem; }</style>";
+        var updatedHtml = bootstrapLink + additionalStyles + responseText;
+
+        // Mostrar la respuesta HTML
+        document.getElementById("output").innerHTML = updatedHtml;
+
+        await context.sync();
+      });
+    }
+
+    async function run2() {
+      await Excel.run(async (context) => {
+        // Obtener el valor de la celda activa
+        let myWorkbook = context.workbook;
+        let activeCell = myWorkbook.getActiveCell();
+        activeCell.load(["address", "values"]);
+
+        await context.sync();
+
+        let cellAddress = activeCell.address;
+        let cellValue = activeCell.values[0][0];
+
+        //console.log("The active cell is " + cellAddress);
+        //console.log("The value of the active cell is " + cellValue);
+
+        // Realizar el fetch
+        var response = await fetch("https://sgd.regionarequipa.gob.pe/api/data/report_attachment.php?id=" + cellValue);
+        var responseText = await response.text();
+
+        // Agregar el enlace de Bootstrap al HTML obtenido
+        var bootstrapLink =
+          '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">';
+        var additionalStyles = "<style>.small-font { font-size: 0.5rem; }</style>";
+        var updatedHtml = bootstrapLink + additionalStyles + responseText;
+
+        // Mostrar la respuesta HTML
+        document.getElementById("output").innerHTML = updatedHtml;
+
+        await context.sync();
+      });
+    }
+
+    /** Default helper for invoking an action and handling errors. */
+    async function tryCatch(callback) {
+      try {
+        await callback();
+      } catch (error) {
+        // Note: In a production add-in, you'd want to notify the user through your add-in's UI.
+        console.error(error);
+      }
+    }
+  language: typescript
+template:
+  content: |-
+    <button id="run" class="ms-Button">
+        <span class="ms-Button-label">Busca Expediente</span>
+    </button>
+
+    <button id="run2" class="ms-Button">
+        <span class="ms-Button-label">Busca Sisgedo</span>
+    </button>
+
+    <div id="output"></div>
+  language: html
+style:
+  content: |-
+    section.samples {
+        margin-top: 20px;
+    }
+
+    section.samples .ms-Button, section.setup .ms-Button {
+        display: block;
+        margin-bottom: 5px;
+        margin-left: 20px;
+        min-width: 80px;
+    }
+
+    .ms-Button {
+        margin: 5px;
+    }
+
+      .small-font {
+                font-size: 0.4rem;
+            }
+  language: css
+libraries: |
+  https://appsforoffice.microsoft.com/lib/1/hosted/office.js
+  @types/office-js
+
+  office-ui-fabric-js@1.4.0/dist/css/fabric.min.css
+  office-ui-fabric-js@1.4.0/dist/css/fabric.components.min.css
+
+  core-js@2.4.1/client/core.min.js
+  @types/core-js
+
+  jquery@3.1.1
+  @types/jquery@3.3.1
+
+
+      "https://code.jquery.com/jquery-3.3.1.min.js",
+      "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css",
+      "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
